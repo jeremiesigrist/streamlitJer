@@ -2,3 +2,4 @@ openai
 langchain
 spacy
 langdetect
+streamlit_chat
