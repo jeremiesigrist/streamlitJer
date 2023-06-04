@@ -1,4 +1,4 @@
-OPENAI_API_KEY = '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'
+OPENAI_API_KEY = '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'
 PINECONE_API_KEY = '47e2922a-e0de-41ea-8cd0-fe4346cbcc59'
 PINECONE_ENV = 'us-west4-gcp'
 
