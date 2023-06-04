@@ -205,7 +205,7 @@ def get_chat(model, temp):
 
 history = ChatMessageHistory()
 
-#st.write(openai_api_key)
+st.write(openai)
 
 list_models = openai.Model.list()
 # st.write(list_models)
