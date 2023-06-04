@@ -38,7 +38,7 @@ import json
 
 
 
-# nlp_model = "en_core_web_sm"    
+# nlp_model = "en_core_web_sm"
 nlp_model_EN = "en_core_web_md"
 nlp_model_FR = "fr_core_news_md"
 
@@ -91,58 +91,58 @@ def detect_language(text):
 def anonymize_text(text, custom_codes=None):
 
     if LOAD_ALL_MODELS_LANG:
-        
+
         if nlp_EN not in st.session_state:
             nlp = spacy.load(nlp_model_EN)
             st.session_state['nlp_EN'] = nlp
         else:
             nlp = st.session_state['nlp_EN']
-            
+
         st.session_state['nlp'] = nlp
-        st.session_state['lang'] = 'EN'    
+        st.session_state['lang'] = 'EN'
         anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)
-        
-        
+
+
         if nlp_FR not in st.session_state:
-            nlp = spacy.load(nlp_model_FR)  
+            nlp = spacy.load(nlp_model_FR)
             st.session_state['nlp_FR'] = nlp
         else:
-            nlp = st.session_state['nlp_FR']            
-            
+            nlp = st.session_state['nlp_FR']
+
         st.session_state['nlp'] = nlp
-        st.session_state['lang'] = 'FR' 
-        anonymized_text, custom_codes = anonymize_text_detail(anonymized_text, custom_codes)     
-        
-        
+        st.session_state['lang'] = 'FR'
+        anonymized_text, custom_codes = anonymize_text_detail(anonymized_text, custom_codes)
+
+
     else:
-        anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)    
-        
+        anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)
+
     return anonymized_text, custom_codes
-        
+
 
 def anonymize_text_detail(text, custom_codes=None):
 
     if LOAD_ALL_MODELS_LANG:
         nlp =  st.session_state['nlp']
-        
+
     else:
         lang_detected = detect_language(text)
-    
+
         # default lang is EN
-    
+
         if lang_detected != 'FR' and st.session_state['lang'] != 'EN':
             nlp = spacy.load(nlp_model_EN)
             st.session_state['nlp'] = nlp
             st.session_state['lang'] = 'EN'
         elif lang_detected == 'FR' and st.session_state['lang'] != 'FR':
-            nlp = spacy.load(nlp_model_FR)  
+            nlp = spacy.load(nlp_model_FR)
             st.session_state['nlp'] = nlp
-            st.session_state['lang'] = 'FR'          
+            st.session_state['lang'] = 'FR'
         else:
             nlp =  st.session_state['nlp']
-        
-    #st.write('st.session_state.lang ', st.session_state['lang'])    
-        
+
+    #st.write('st.session_state.lang ', st.session_state['lang'])
+
     doc = nlp(text)
     anonymized_text = []
     codes = {}
@@ -152,15 +152,15 @@ def anonymize_text_detail(text, custom_codes=None):
         codes.update(custom_codes)
 
     custom_codes_lower = [x.lower() for x in codes.keys()]
-    
+
     # print(custom_codes_lower)
-        
+
     for token in doc:
         token_lower = token.text.lower()
         if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
             code = codes.get(token.text)
             if not code:
-                
+
                 code = f"CODE{len(codes) + 1}"
                 codes[token.text] = code
                 # print(len(codes), token.text, codes[token.text])
@@ -173,9 +173,9 @@ def anonymize_text_detail(text, custom_codes=None):
             else:
                 anonymized_text.append(token.text)
 
-            
-    # print(anonymized_text, codes)        
-            
+
+    # print(anonymized_text, codes)
+
     return " ".join(anonymized_text), json.dumps(codes)
 
 
@@ -185,9 +185,9 @@ def deanonymize_text(text, codes_json):
 
     for value, code in codes.items():
         text = text.replace(code, value)
-        
+
         # pattern = re.compile(re.escape(code), re.IGNORECASE)
-        # text = re.sub(pattern, value, text)        
+        # text = re.sub(pattern, value, text)
 
     return text
 
@@ -205,7 +205,7 @@ def get_chat(model, temp):
 
 history = ChatMessageHistory()
 
-st.write(openai_api_key)
+#st.write(openai_api_key)
 
 list_models = openai.Model.list()
 # st.write(list_models)
@@ -243,15 +243,15 @@ def check_size_history(history, length):
 
 def get_text():
     res = st.text_area("Human: ","", key="input", height=300)
-    
+
     input_text = res
     # st.session_state['input'] = ''
-    
-    return input_text 
-    
+
+    return input_text
+
 def clear_text():
-    st.session_state["input"] = ""    
-    
+    st.session_state["input"] = ""
+
 
 
 
@@ -265,71 +265,71 @@ def get_text_from(history):
             res += 'Assistant:\n' + msg + '\n\n'
         else:
             res += 'Me:\n' + msg + '\n\n'
-    
-    
+
+
     return res
-    
-    
-    
+
+
+
 if 'history' not in st.session_state:
     # history.add_system_message(st.session_state.primer)
     st.session_state['history'] = history
     # history_text = ''
 else:
-    history = st.session_state['history']    
+    history = st.session_state['history']
     # history_text = get_text_from(history)
-    
-    
+
+
 if 'previous_msg' not in st.session_state:
     st.session_state['previous_msg'] = ''
-  
-    
+
+
 
 # Initialization your state messages
 
 st.sidebar.header("Settings")
 
 with st.sidebar:
-    
+
     st.session_state.primer = st.radio(label='Choose your primer message', options=primes)
-    
+
 #    st.session_state.lang = st.radio(label='Language of the text', options=['EN','FR'])
-        
+
     st.session_state.anonym = st.checkbox(
         "Anonymisation", value=True
     )
-    
+
     if st.session_state.anonym:
-        
-        
+
+
         if 'nlp_EN' not in st.session_state:
-            st.session_state['nlp_EN'] = spacy.load(nlp_model_EN)        
+            st.session_state['nlp_EN'] = spacy.load(nlp_model_EN)
         if 'nlp_FR' not in st.session_state:
-            st.session_state['nlp_FR'] = spacy.load(nlp_model_FR)          
-        
+            st.session_state['nlp_FR'] = spacy.load(nlp_model_FR)
+
         if 'nlp' not in st.session_state:
             st.session_state['nlp'] = st.session_state['nlp_EN']
             st.session_state['lang'] = 'EN'
         else:
-            nlp = st.session_state['nlp']    
-    
-    
-    
+            nlp = st.session_state['nlp']
+
+
+
     #st.write(st.session_state.primer)
-    
+
 
     index = model_list.index(model_default)
     st.selectbox('Model', model_list, key='model', index=index)
-    
+
     st.session_state.temperature = st.slider(
         "Temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.01
     )
-    
-    chat = get_chat(st.session_state.model, st.session_state.temperature)    
-    
-    
+
+    chat = get_chat(st.session_state.model, st.session_state.temperature)
+
+
     # SystemMessage(content="You are a nice AI bot that helps a user figure out what to eat in one short sentence"),
-    
+
     st.session_state.context_length = st.slider(
         "Context Message Length", min_value=1, max_value=50, value=10, step=1
     )
@@ -344,10 +344,10 @@ with st.sidebar:
         st.session_state['history'] = history
         st.session_state['previous_msg'] = ''
         st.info("Chat Memory Cleared")
-    
-    
 
-        
+
+
+
 
 
 st.header("chatGPT by Jer")
@@ -365,11 +365,11 @@ st.header("chatGPT by Jer")
 user_input = get_text()
 
 if user_input and user_input != st.session_state['previous_msg']:
-    
+
     # st.write('different !', user_input, st.session_state['previous_msg'])
 
-    st.session_state['previous_msg'] = user_input    
-    
+    st.session_state['previous_msg'] = user_input
+
     if st.session_state.anonym:
 #        if st.session_state.lang == 'EN':
 #            lang = 'EN'
@@ -378,20 +378,20 @@ if user_input and user_input != st.session_state['previous_msg']:
         user_input, codes_json = anonymize_text(user_input, custom_codes)
         st.session_state.codes = codes_json
         #st.write(user_input)
-        
+
     if st.session_state.primer != primes[0]:
         primer = st.session_state.primer
         if st.session_state.anonym:
-            primer = primer + anon_constraints 
+            primer = primer + anon_constraints
         user_input = primer + user_input
-    
+
     history.add_user_message(user_input)
     ai_response = chat(history.messages)
     history.add_ai_message(ai_response.content)
-    
-    
+
+
     history = check_size_history(history, st.session_state.context_length)
-    
+
     st.session_state['history'] = history
 
 else:
@@ -403,23 +403,23 @@ if DEBUG:
 
 for i in range(len(history.messages)-1, -1, -1):
     msg = history.messages[i].content
-    
+
     if st.session_state.primer != primes[0]:
         primer = st.session_state.primer
         msg = msg.replace(primer,'')
         if st.session_state.anonym:
-            msg = msg.replace(anon_constraints,'') 
-    
-    
-    
+            msg = msg.replace(anon_constraints,'')
+
+
+
     if st.session_state.anonym and 'codes' in st.session_state:
-        msg = deanonymize_text(msg, st.session_state.codes)    
-    
+        msg = deanonymize_text(msg, st.session_state.codes)
+
     if history.messages[i].type == 'ai':
         message(msg, key=str(i))
     else:
         message(msg, is_user=True, key=str(i) + '_user')
-            
+
 
 history_text = get_text_from(history)
 
@@ -438,7 +438,7 @@ with st.sidebar:
 # ================================================================================
 # ================================================================================
 
-# LA SUITE Ã  DEVELOPPER ==> 
+# LA SUITE Ã  DEVELOPPER ==>
 # https://twitter.com/pwang_szn/status/1642104548109201410
 
 # ================================================================================
