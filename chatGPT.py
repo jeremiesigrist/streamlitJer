@@ -21,9 +21,8 @@ st.set_page_config(
 
 import sys
 #sys.path.insert(1, '/code/AI')
-import config
 import openai
-openai_api_key = config.OPENAI_API_KEY
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 openai.api_key = openai_api_key
 DEBUG = False
 
