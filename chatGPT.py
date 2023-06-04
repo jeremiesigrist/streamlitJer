@@ -148,6 +148,7 @@ def anonymize_text_detail(text, custom_codes=None):
 
     # Ajouter les codes personnalisÃ©s
     if custom_codes:
+        st.write(custom_codes)
         codes.update(custom_codes)
 
     custom_codes_lower = [x.lower() for x in codes.keys()]
