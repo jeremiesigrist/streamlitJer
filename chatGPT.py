@@ -17,7 +17,7 @@ st.set_page_config(
 
 
 
-   
+
 
 import sys
 #sys.path.insert(1, '/code/AI')
@@ -91,7 +91,7 @@ def anonymize_text(text, custom_codes=None):
 
     if LOAD_ALL_MODELS_LANG:
 
-        if nlp_EN not in st.session_state:
+        if 'nlp_EN' not in st.session_state:
             nlp = spacy.load(nlp_model_EN)
             st.session_state['nlp_EN'] = nlp
         else:
@@ -102,7 +102,7 @@ def anonymize_text(text, custom_codes=None):
         anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)
 
 
-        if nlp_FR not in st.session_state:
+        if 'nlp_FR' not in st.session_state:
             nlp = spacy.load(nlp_model_FR)
             st.session_state['nlp_FR'] = nlp
         else:
@@ -204,7 +204,7 @@ def get_chat(model, temp):
 
 history = ChatMessageHistory()
 
-st.write(openai)
+#st.write(openai)
 
 list_models = openai.Model.list()
 # st.write(list_models)
