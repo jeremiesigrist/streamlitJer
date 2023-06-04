@@ -42,6 +42,8 @@ import json
 nlp_model_EN = "en_core_web_md"
 nlp_model_FR = "fr_core_news_md"
 
+LOAD_ALL_MODELS_LANG = True
+
 words2anon_list = [
     'Capgemini',
     'A220',
@@ -56,6 +58,7 @@ words2anon_list = [
 primes=[
         'No primer',
         'Vous Ãªtes un assistant amical et serviable qui peut parler anglais et franÃ§ais:\n',
+        'Peux tu reformuler l email suivant dans un francais correct avec le ton suivant: Professionel, Concis, Detaille, Technique, Formel, Specifique, Organise, Poli:\n',
         'Can you reformulate the following email in a correct english with the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n',
         'The following notes are in french, can you take them and make a minutes of meeting in a correct English. Make correct and complete sentences from theses notes. Make paragraph instead of bullet points. Use the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n'
         ]
@@ -84,21 +87,59 @@ def detect_language(text):
 
 
 
+
 def anonymize_text(text, custom_codes=None):
-    lang_detected = detect_language(text)
 
-    # default lang is EN
-
-    if lang_detected != 'FR' and st.session_state['lang'] != 'EN':
-        nlp = spacy.load(nlp_model_EN)
+    if LOAD_ALL_MODELS_LANG:
+        
+        if nlp_EN not in st.session_state:
+            nlp = spacy.load(nlp_model_EN)
+            st.session_state['nlp_EN'] = nlp
+        else:
+            nlp = st.session_state['nlp_EN']
+            
         st.session_state['nlp'] = nlp
-        st.session_state['lang'] = 'EN'
-    elif lang_detected == 'FR' and st.session_state['lang'] != 'FR':
-        nlp = spacy.load(nlp_model_FR)  
+        st.session_state['lang'] = 'EN'    
+        anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)
+        
+        
+        if nlp_FR not in st.session_state:
+            nlp = spacy.load(nlp_model_FR)  
+            st.session_state['nlp_FR'] = nlp
+        else:
+            nlp = st.session_state['nlp_FR']            
+            
         st.session_state['nlp'] = nlp
-        st.session_state['lang'] = 'FR'          
+        st.session_state['lang'] = 'FR' 
+        anonymized_text, custom_codes = anonymize_text_detail(anonymized_text, custom_codes)     
+        
+        
     else:
+        anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)    
+        
+    return anonymized_text, custom_codes
+        
+
+def anonymize_text_detail(text, custom_codes=None):
+
+    if LOAD_ALL_MODELS_LANG:
         nlp =  st.session_state['nlp']
+        
+    else:
+        lang_detected = detect_language(text)
+    
+        # default lang is EN
+    
+        if lang_detected != 'FR' and st.session_state['lang'] != 'EN':
+            nlp = spacy.load(nlp_model_EN)
+            st.session_state['nlp'] = nlp
+            st.session_state['lang'] = 'EN'
+        elif lang_detected == 'FR' and st.session_state['lang'] != 'FR':
+            nlp = spacy.load(nlp_model_FR)  
+            st.session_state['nlp'] = nlp
+            st.session_state['lang'] = 'FR'          
+        else:
+            nlp =  st.session_state['nlp']
         
     #st.write('st.session_state.lang ', st.session_state['lang'])    
         
@@ -259,8 +300,14 @@ with st.sidebar:
     
     if st.session_state.anonym:
         
+        
+        if 'nlp_EN' not in st.session_state:
+            st.session_state['nlp_EN'] = spacy.load(nlp_model_EN)        
+        if 'nlp_FR' not in st.session_state:
+            st.session_state['nlp_FR'] = spacy.load(nlp_model_FR)          
+        
         if 'nlp' not in st.session_state:
-            st.session_state['nlp'] = spacy.load(nlp_model_EN)
+            st.session_state['nlp'] = st.session_state['nlp_EN']
             st.session_state['lang'] = 'EN'
         else:
             nlp = st.session_state['nlp']    
