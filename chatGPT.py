@@ -36,7 +36,6 @@ import json
 
 
 
-
 # nlp_model = "en_core_web_sm"
 nlp_model_EN = "en_core_web_md"
 nlp_model_FR = "fr_core_news_md"
@@ -67,6 +66,7 @@ for index, word in enumerate(words2anon_list):
     code = f'OWN_CODE{index + 1}'
     custom_codes[word] = code
 
+
 #if 'codes' not in st.session_state:
 #    st.session_state.codes = custom_codes
 
@@ -87,7 +87,7 @@ def detect_language(text):
 
 
 
-def anonymize_text(text, custom_codes=None):
+def anonymize_text(text, codes=None):
 
     if LOAD_ALL_MODELS_LANG:
 
@@ -99,7 +99,7 @@ def anonymize_text(text, custom_codes=None):
 
         st.session_state['nlp'] = nlp
         st.session_state['lang'] = 'EN'
-        anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)
+        anonymized_text, codes = anonymize_text_detail(text, codes)
 
 
         if 'nlp_FR' not in st.session_state:
@@ -110,16 +110,16 @@ def anonymize_text(text, custom_codes=None):
 
         st.session_state['nlp'] = nlp
         st.session_state['lang'] = 'FR'
-        anonymized_text, custom_codes = anonymize_text_detail(anonymized_text, custom_codes)
+        anonymized_text, codes = anonymize_text_detail(anonymized_text, codes)
 
 
     else:
-        anonymized_text, custom_codes = anonymize_text_detail(text, custom_codes)
+        anonymized_text, codes = anonymize_text_detail(text, codes)
 
-    return anonymized_text, custom_codes
+    return anonymized_text, codes
 
 
-def anonymize_text_detail(text, custom_codes=None):
+def anonymize_text_detail(text, C_codes=None):
 
     if LOAD_ALL_MODELS_LANG:
         nlp =  st.session_state['nlp']
@@ -146,10 +146,14 @@ def anonymize_text_detail(text, custom_codes=None):
     anonymized_text = []
     codes = {}
 
+
+
+
     # Ajouter les codes personnalisÃ©s
-    if custom_codes:
-        st.write(custom_codes)
-        codes.update(custom_codes)
+    if C_codes:
+        st.write(C_codes)
+        st.write('TOTO')
+        codes.update(dict(C_codes))
 
     custom_codes_lower = [x.lower() for x in codes.keys()]
 
@@ -176,11 +180,12 @@ def anonymize_text_detail(text, custom_codes=None):
 
     # print(anonymized_text, codes)
 
-    return " ".join(anonymized_text), json.dumps(codes)
+    #return " ".join(anonymized_text), json.dumps(codes)
+    return " ".join(anonymized_text), codes
 
 
 def deanonymize_text(text, codes_json):
-    codes = json.loads(codes_json)
+    codes = codes_json
 
 
     for value, code in codes.items():
@@ -194,7 +199,7 @@ def deanonymize_text(text, codes_json):
 
 
 
-
+#st.write(custom_codes)
 openai.api_key = openai_api_key
 
 
@@ -220,7 +225,7 @@ from streamlit_chat import message
 # import requests
 import datetime
 
-
+#st.write(custom_codes)
 # st.write(dir(history))
 
 
@@ -270,7 +275,7 @@ def get_text_from(history):
     return res
 
 
-
+#st.write(custom_codes)
 if 'history' not in st.session_state:
     # history.add_system_message(st.session_state.primer)
     st.session_state['history'] = history
@@ -283,7 +288,7 @@ else:
 if 'previous_msg' not in st.session_state:
     st.session_state['previous_msg'] = ''
 
-
+#st.write(custom_codes)
 
 # Initialization your state messages
 
@@ -358,7 +363,7 @@ st.header("chatGPT by Jer")
 
 
 
-
+#st.write(custom_codes)
 
 
 
@@ -375,6 +380,8 @@ if user_input and user_input != st.session_state['previous_msg']:
 #            lang = 'EN'
 #        else:
 #            lang = 'FR'
+
+        #st.write(custom_codes)
         user_input, codes_json = anonymize_text(user_input, custom_codes)
         st.session_state.codes = codes_json
         #st.write(user_input)
@@ -419,7 +426,7 @@ for i in range(len(history.messages)-1, -1, -1):
         message(msg, key=str(i))
     else:
         message(msg, is_user=True, key=str(i) + '_user')
-
+#st.write(custom_codes)
 
 history_text = get_text_from(history)
 
@@ -449,7 +456,7 @@ with st.sidebar:
 
 
 
-
+#st.write(custom_codes)
 
 
 
