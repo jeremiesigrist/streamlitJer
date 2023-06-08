@@ -55,7 +55,7 @@ words2anon_list = [
 
 primes=[
         'No primer',
-        'Vous Ãªtes un assistant amical et serviable qui peut parler anglais et franÃ§ais:\n',
+        'Vous êtes un assistant amical et serviable qui peut parler anglais et français:\n',
         'Peux tu reformuler l email suivant dans un francais correct avec le ton suivant: Professionel, Concis, Detaille, Technique, Formel, Specifique, Organise, Poli:\n',
         'Can you reformulate the following email in a correct english with the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n',
         'The following notes are in french, can you take them and make a minutes of meeting in a correct English. Make correct and complete sentences from theses notes. Make paragraph instead of bullet points. Use the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n'
