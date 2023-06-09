@@ -167,11 +167,12 @@ def anonymize_text_detail(text, C_codes=None):
         token_lower = token.text.lower()
         if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
             code = codes.get(token.text)
-            if not code:
+            if not code and token.text.find('CODE') == -1:
 
                 code = f"CODE{len(codes) + 1}"
                 codes[token.text] = code
                 # print(len(codes), token.text, codes[token.text])
+                st.write( token.text, token.ent_type_, codes[token.text])
             anonymized_text.append(code)
         else:
             index = next((i for i, x in enumerate(custom_codes_lower) if x == token_lower), None)
