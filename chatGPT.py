@@ -37,8 +37,16 @@ import json
 
 
 # nlp_model = "en_core_web_sm"
-nlp_model_EN = "en_core_web_md"
-nlp_model_FR = "fr_core_news_md"
+#nlp_model_EN = "en_core_web_md"
+#nlp_model_FR = "fr_core_news_md"
+
+# Accurate
+nlp_model_EN = "en_core_web_trf"
+nlp_model_EN = "fr_dep_news_trf"
+
+
+
+
 
 LOAD_ALL_MODELS_LANG = True
 
