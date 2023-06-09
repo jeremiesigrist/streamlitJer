@@ -99,8 +99,12 @@ def anonymize_text(text, codes=None):
 
         st.session_state['nlp'] = nlp
         st.session_state['lang'] = 'EN'
+
+        st.write(codes)
+
         anonymized_text, codes = anonymize_text_detail(text, codes)
 
+        st.write(codes)
 
         if 'nlp_FR' not in st.session_state:
             nlp = spacy.load(nlp_model_FR)
@@ -112,7 +116,7 @@ def anonymize_text(text, codes=None):
         st.session_state['lang'] = 'FR'
         anonymized_text, codes = anonymize_text_detail(anonymized_text, codes)
 
-
+        st.write(codes)
     else:
         anonymized_text, codes = anonymize_text_detail(text, codes)
 
@@ -151,8 +155,8 @@ def anonymize_text_detail(text, C_codes=None):
 
     # Ajouter les codes personnalisÃ©s
     if C_codes:
-        st.write(C_codes)
-        st.write('TOTO')
+        #st.write(C_codes)
+        #st.write('TOTO')
         codes.update(dict(C_codes))
 
     custom_codes_lower = [x.lower() for x in codes.keys()]
