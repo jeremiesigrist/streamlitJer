@@ -42,7 +42,7 @@ import json
 
 # Accurate
 nlp_model_EN = "en_core_web_trf"
-nlp_model_EN = "fr_dep_news_trf"
+nlp_model_FR = "fr_dep_news_trf"
 
 
 
