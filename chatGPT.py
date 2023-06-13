@@ -181,7 +181,7 @@ def anonymize_text_detail(text, C_codes=None):
                 code = f"CODE{len(codes) + 1}"
                 codes[token.text] = code
                 # print(len(codes), token.text, codes[token.text])
-                st.write( token.text, token.ent_type_, codes[token.text])
+                st.write( token.text, token.ent_type_, codes[token.text], st.session_state['lang'])
             anonymized_text.append(code)
         else:
             index = next((i for i, x in enumerate(custom_codes_lower) if x == token_lower), None)
