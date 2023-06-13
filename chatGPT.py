@@ -33,6 +33,7 @@ from langchain.schema import SystemMessage
 import spacy
 import re
 import json
+import data
 
 
 
@@ -175,7 +176,7 @@ def anonymize_text_detail(text, C_codes=None):
         token_lower = token.text.lower()
         if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
             code = codes.get(token.text)
-            if not code and token.text.find('CODE') == -1:
+            if token_lower not in data.STOP_WORDS_FR and token_lower not in data.STOP_WORDS_EN and not code and token.text.find('CODE') == -1:
 
                 code = f"CODE{len(codes) + 1}"
                 codes[token.text] = code
