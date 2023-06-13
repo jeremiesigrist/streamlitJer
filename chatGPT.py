@@ -159,7 +159,7 @@ def anonymize_text_detail(text, C_codes=None):
     anonymized_text = []
     codes = {}
 
-
+   
 
 
     # Ajouter les codes personnalisÃ©s
