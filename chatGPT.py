@@ -49,7 +49,7 @@ nlp_model_FR = "fr_core_news_md"
 
 
 
-LOAD_ALL_MODELS_LANG = True
+LOAD_ALL_MODELS_LANG = False
 
 words2anon_list = [
     'Capgemini',
@@ -173,7 +173,7 @@ def anonymize_text_detail(text, C_codes=None):
     # print(custom_codes_lower)
 
     for token in doc:
-        breakpoint()
+        #breakpoint()
         token_lower = token.text.lower()
         if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
             code = codes.get(token.text)
@@ -321,7 +321,7 @@ with st.sidebar:
 
     if st.session_state.anonym:
 
-        breakpoint()
+        #breakpoint()
         if 'nlp_EN' not in st.session_state:
             st.session_state['nlp_EN'] = spacy.load(nlp_model_EN)
         if 'nlp_FR' not in st.session_state:
