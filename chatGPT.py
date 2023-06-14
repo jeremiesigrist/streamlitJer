@@ -321,7 +321,7 @@ with st.sidebar:
 
     if st.session_state.anonym:
 
-
+        breakpoint()
         if 'nlp_EN' not in st.session_state:
             st.session_state['nlp_EN'] = spacy.load(nlp_model_EN)
         if 'nlp_FR' not in st.session_state:
