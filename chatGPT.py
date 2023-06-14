@@ -159,7 +159,7 @@ def anonymize_text_detail(text, C_codes=None):
     anonymized_text = []
     codes = {}
 
-   
+
 
 
     # Ajouter les codes personnalisÃ©s
@@ -173,6 +173,7 @@ def anonymize_text_detail(text, C_codes=None):
     # print(custom_codes_lower)
 
     for token in doc:
+        breakpoint()
         token_lower = token.text.lower()
         if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
             code = codes.get(token.text)
