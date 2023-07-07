@@ -218,7 +218,7 @@ def deanonymize_text(text, codes_json):
 openai.api_key = openai_api_key
 
 
-model_default='gpt-4'
+model_default='gpt-3.5-turbo'
 
 def get_chat(model, temp):
     return ChatOpenAI(model_name=model, temperature=temp, openai_api_key=openai_api_key )
@@ -316,7 +316,7 @@ with st.sidebar:
 #    st.session_state.lang = st.radio(label='Language of the text', options=['EN','FR'])
 
     st.session_state.anonym = st.checkbox(
-        "Anonymisation", value=False
+        "Anonymisation", value=True
     )
 
     if st.session_state.anonym:
