@@ -19,7 +19,7 @@ st.set_page_config(
 
 
 
-import sys
+# import sys
 #sys.path.insert(1, '/code/AI')
 import openai
 openai_api_key = st.secrets["OPENAI_API_KEY"]
@@ -28,11 +28,11 @@ DEBUG = False
 
 from langchain.memory import ChatMessageHistory
 from langchain.chat_models import ChatOpenAI
-from langchain.schema import SystemMessage
+# from langchain.schema import SystemMessage
 
 import spacy
-import re
-import json
+# import re
+# import json
 import data
 
 
@@ -464,12 +464,11 @@ with st.sidebar:
 
 
 
-
-
-
 #st.write(custom_codes)
 
 
 
 
 # streamlit run /root/scripts/chatGPT.py --server.port 8505 --theme.base dark &
+
+# from codespace ==> streamlit run chatGPT.py --server.enableCORS false --server.enableXsrfProtection false --server.port 8505 --theme.base dark &
