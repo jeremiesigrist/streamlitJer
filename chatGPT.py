@@ -51,7 +51,7 @@ nlp_model_FR = "fr_core_news_md"
 
 LOAD_ALL_MODELS_LANG = False
 
-words2anon_list = st.secrets["words2anon_list"]
+words2anon_list = st.secrets["WORDS_LIST"]
 
 
 
