@@ -51,16 +51,9 @@ nlp_model_FR = "fr_core_news_md"
 
 LOAD_ALL_MODELS_LANG = False
 
-words2anon_list = [
-    'Capgemini',
-    'A220',
-    'SDOI',
-    'DCC',
-    'A220World',
-    'AirbusWorld',
-    'ANNEX13',
-    'Export Control'
-]
+words2anon_list = st.secrets["words2anon_list"]
+
+
 
 primes=[
         'No primer',
