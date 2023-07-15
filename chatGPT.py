@@ -73,7 +73,7 @@ for index, word in enumerate(words2anon_list):
 #if 'codes' not in st.session_state:
 #    st.session_state.codes = custom_codes
 
-anon_constraints = ' (do not take into consideration the "CODEX" or "OWN_CODEX" in your response, they will be replaced by the real names afterwards):\n'
+anon_constraints = ' (do not take into consideration the "CODEX" or "OWN_CODEX" words in your response, they will be replaced by the real words afterwards):\n'
 
 
 from langdetect import detect
