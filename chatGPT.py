@@ -15,10 +15,6 @@ st.set_page_config(
     }
 )
 
-
-
-
-
 # import sys
 #sys.path.insert(1, '/code/AI')
 import openai
