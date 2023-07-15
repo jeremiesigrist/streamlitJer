@@ -65,6 +65,7 @@ words2anon_list = [
 primes=[
         'No primer',
         'Vous êtes un assistant amical et serviable qui peut parler anglais et français:\n',
+        'Peux tu traduire la phrase suivante dans un anglais correct avec le ton suivant: Professionel, Concis, Detaille, Technique, Formel, Specifique, Organise, Poli:\n',
         'Peux tu reformuler l email suivant dans un francais correct avec le ton suivant: Professionel, Concis, Detaille, Technique, Formel, Specifique, Organise, Poli:\n',
         'Can you reformulate the following email in a correct english with the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n',
         'The following notes are in french, can you take them and make a minutes of meeting in a correct English. Make correct and complete sentences from theses notes. Make paragraph instead of bullet points. Use the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n'
@@ -218,7 +219,9 @@ def deanonymize_text(text, codes_json):
 openai.api_key = openai_api_key
 
 
-model_default='gpt-4'
+#model_default='gpt-4'
+model_default='gpt-3.5-turbo-0613'
+
 
 def get_chat(model, temp):
     return ChatOpenAI(model_name=model, temperature=temp, openai_api_key=openai_api_key )
