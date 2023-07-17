@@ -75,6 +75,15 @@ anon_constraints = ' (do not take into consideration the "CODEX" or "OWN_CODEX" 
 from langdetect import detect
 
 def detect_language(text):
+
+
+    # On ne regarde que l'anglais pour eviter les problemes
+
+    return 'EN'
+
+
+
+
     res = 'FR'
     lang = detect(text)
     if lang == 'en':
