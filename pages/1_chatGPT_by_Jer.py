@@ -15,8 +15,8 @@ st.set_page_config(
     }
 )
 
-# import sys
-#sys.path.insert(1, '/code/AI')
+import sys
+sys.path.insert(1, '/')
 import openai
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 openai.api_key = openai_api_key
@@ -359,8 +359,11 @@ with st.sidebar:
 
     # Allow Users to reset the memory
     if st.button("Clear Chat", on_click=clear_text):
+
         # st.button("clear text input", on_click=clear_text)
         history = ChatMessageHistory()
+
+        st.write( get_text_from(st.session_state['history']))
         # history.add_system_message(st.session_state.primer)
         st.session_state['history'] = history
         st.session_state['previous_msg'] = ''
