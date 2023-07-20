@@ -10,3 +10,8 @@ streamlit_chat
 pypdf
 sentence_transformers
 langchain[docarray]
+python-dotenv
+Pillow
+transformers
+streamlit-extras
+tokenizers
