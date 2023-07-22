@@ -367,7 +367,7 @@ with st.sidebar:
         # history.add_system_message(st.session_state.primer)
         st.session_state['history'] = history
         st.session_state['previous_msg'] = ''
-        st.info("Chat Memory Cleared")
+        st.toast("Chat Memory Cleared")
 
 
 
@@ -459,7 +459,7 @@ history_text = get_text_from(history)
 with st.sidebar:
     if st.download_button('download conversation', history_text):
         # print(get_text_from(st.session_state['history']))
-        st.info("history downloaded")
+        st.toast("history downloaded")
 
 # ================================================================================
 # ================================================================================
