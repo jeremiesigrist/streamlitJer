@@ -49,7 +49,12 @@ LOAD_ALL_MODELS_LANG = False
 
 words2anon_list = st.secrets["WORDS_LIST"]
 
+cles = st.secrets["WORDS_KEY"]   # liste de mots a remplacer
+valeurs = st.secrets["WORDS_VALUE"]
 
+WORDS_DICT = {}
+for cle, valeur in zip(cles, valeurs):
+    WORDS_DICT[cle] = valeur
 
 primes=[
         'No primer',
@@ -131,6 +136,7 @@ def anonymize_text(text, codes=None):
     return anonymized_text, codes
 
 
+
 def anonymize_text_detail(text, C_codes=None):
 
     if LOAD_ALL_MODELS_LANG:
@@ -174,7 +180,8 @@ def anonymize_text_detail(text, C_codes=None):
     for token in doc:
         #breakpoint()
         token_lower = token.text.lower()
-        if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
+        # if token.ent_type_ in ['PERSON', 'ORG', 'PRODUCT', 'GPE']:
+        if token.ent_type_ in []:
             code = codes.get(token.text)
             if token_lower not in data.STOP_WORDS_FR and token_lower not in data.STOP_WORDS_EN and not code and token.text.find('CODE') == -1:
 
@@ -184,12 +191,19 @@ def anonymize_text_detail(text, C_codes=None):
                 st.write( token.text, token.ent_type_, codes[token.text], st.session_state['lang'])
             anonymized_text.append(code)
         else:
-            index = next((i for i, x in enumerate(custom_codes_lower) if x == token_lower), None)
-            if index is not None:
-                code = list(codes.values())[index]
-                anonymized_text.append(code)
+
+            # Vérifiez d'abord si le jeton est dans les remplacements personnalisés
+            # Vérifiez si le jeton (en minuscules) est dans les remplacements personnalisés (ignorant la casse)
+            matching_key = next((key for key in WORDS_DICT if key.lower() == token_lower), None)
+            if matching_key is not None:
+                anonymized_text.append(WORDS_DICT[matching_key])
             else:
-                anonymized_text.append(token.text)
+                index = next((i for i, x in enumerate(custom_codes_lower) if x == token_lower), None)
+                if index is not None:
+                    code = list(codes.values())[index]
+                    anonymized_text.append(code)
+                else:
+                    anonymized_text.append(token.text)
 
 
     # print(anonymized_text, codes)
@@ -198,15 +212,30 @@ def anonymize_text_detail(text, C_codes=None):
     return " ".join(anonymized_text), codes
 
 
+
+import re
+
+def replace_case_insensitive(text, code, value):
+    pattern = re.compile(re.escape(code), re.IGNORECASE)
+    return pattern.sub(value, text)
+
+
+
+
 def deanonymize_text(text, codes_json):
     codes = codes_json
-
+    # st.write('before ', text)
 
     for value, code in codes.items():
         text = text.replace(code, value)
 
+    for value, code in WORDS_DICT.items():
+        text = replace_case_insensitive(text, code, value)
+
         # pattern = re.compile(re.escape(code), re.IGNORECASE)
         # text = re.sub(pattern, value, text)
+
+    # st.write('after ', text)
 
     return text
 
@@ -333,6 +362,7 @@ with st.sidebar:
             st.session_state['lang'] = 'EN'
         else:
             nlp = st.session_state['nlp']
+        st.write(cles)
 
 
 
@@ -403,7 +433,7 @@ if user_input and user_input != st.session_state['previous_msg']:
         #st.write(custom_codes)
         user_input, codes_json = anonymize_text(user_input, custom_codes)
         st.session_state.codes = codes_json
-        #st.write(user_input)
+        # st.write(user_input, codes_json)
 
     if st.session_state.primer != primes[0]:
         primer = st.session_state.primer
@@ -438,7 +468,8 @@ for i in range(len(history.messages)-1, -1, -1):
 
 
 
-    if st.session_state.anonym and 'codes' in st.session_state:
+    # if st.session_state.anonym and 'codes' in st.session_state:
+    if st.session_state.anonym:        
         msg = deanonymize_text(msg, st.session_state.codes)
 
     if history.messages[i].type == 'ai':
