@@ -215,9 +215,15 @@ def anonymize_text_detail(text, C_codes=None):
 
 import re
 
-def replace_case_insensitive(text, code, value):
-    pattern = re.compile(re.escape(code), re.IGNORECASE)
-    return pattern.sub(value, text)
+def replace_case_insensitive(text, word, replacement):
+
+    word_pattern = r'\b' + re.escape(word) + r'(?=\b|\W|$)'
+    return re.sub(word_pattern, replacement, text, flags=re.IGNORECASE)
+
+
+    
+    # pattern = re.compile(re.escape(code), re.IGNORECASE)
+    # return pattern.sub(value, text)
 
 
 
