@@ -34,7 +34,7 @@ def scrape_website(url):
 
 def text_to_pdf(text, filename):
     """Convert text content to a PDF file."""
-    path_wkhtmltopdf = '/usr/local/bin/wkhtmltopdf'
+    path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'
     config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
     pdfkit.from_string(text, filename, configuration=config)
     return filename
