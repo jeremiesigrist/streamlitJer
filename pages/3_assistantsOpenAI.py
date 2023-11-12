@@ -94,14 +94,16 @@ def upload_to_openai(filepath):
 
 
 # Barre de menu latérale
-st.sidebar.title('Liste des sessions')
+expander_sessions = st.sidebar.expander(label = "Liste des sessions", expanded=True)
+
+# st.sidebar.title('Liste des sessions')
 
 # Liste des fichiers existants
 fichiers_existant = os.listdir(dossier_fichiers)
 
 # Si aucun fichier n'existe, afficher un message
 if not fichiers_existant:
-    st.sidebar.warning("Pas encore de sessions enregistrée.")
+    expander_sessions.warning("Pas encore de sessions enregistrée.")
 else:
     for fichier in fichiers_existant:
         fichier_path = os.path.join(dossier_fichiers, fichier)
@@ -111,7 +113,7 @@ else:
         bouton_texte = f"{fichier}"
         bouton_help = f"Date d'enregistrement: {date_creation}"
 
-        if st.sidebar.button(bouton_texte, help=bouton_help):
+        if expander_sessions.button(bouton_texte, help=bouton_help):
             # Action à effectuer lorsqu'un bouton est cliqué
             # st.write(f"Vous avez cliqué sur le fichier {fichier}")
             # Charger la variable du fichier sélectionné
@@ -136,70 +138,74 @@ except Exception as e:
         # st.write('ST OS end', openai_api_key)
     except Exception as e:
         openai_api_key = st.sidebar.text_input("Enter your OpenAI API key", type="password")
-
+ 
 if openai_api_key:
     openai.api_key = openai_api_key
 
 # Additional features in the sidebar for web scraping and file uploading
-with st.expander(label = "Additional Features", expanded=True):
-    # st.sidebar.header("Additional Features")
-    website_url = st.sidebar.text_input("Enter a website URL to scrape and organize into a PDF", key="website_url")
+expander = st.sidebar.expander(label = "Additional Features", expanded=False)
+# st.sidebar.header("Additional Features")
+website_url = expander.text_input("Enter a website URL to scrape and organize into a PDF", key="website_url")
 
-    # Button to scrape a website, convert to PDF, and upload to OpenAI
-    if st.sidebar.button("Scrape and Upload"):
-        # Scrape, convert, and upload process
-        scraped_text = scrape_website(website_url)
-        pdf_path = text_to_pdf(scraped_text, "content/scraped_content.pdf")
-        file_id = upload_to_openai(pdf_path)
-        local_session['file_id_list'].append(file_id)
-        #st.sidebar.write(f"File ID: {file_id}")
+# Button to scrape a website, convert to PDF, and upload to OpenAI
+if expander.button("Scrape and Upload"):
+    # Scrape, convert, and upload process
+    scraped_text = scrape_website(website_url)
+    pdf_path = text_to_pdf(scraped_text, "content/scraped_content.pdf")
+    file_id = upload_to_openai(pdf_path)
+    local_session['file_id_list'].append(file_id)
+    #st.sidebar.write(f"File ID: {file_id}")
 
-    # Sidebar option for users to upload their own files
-    uploaded_file = st.sidebar.file_uploader("Upload a file to OpenAI embeddings", key="file_uploader")
+# Sidebar option for users to upload their own files
+uploaded_file = expander.file_uploader("Upload a file to OpenAI embeddings", key="file_uploader")
 
-    # Button to upload a user's file and store the file ID
-    if st.sidebar.button("Upload File"):
-        # Upload file provided by user
-        if uploaded_file:
-            with open(f"content/{uploaded_file.name}", "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            additional_file_id = upload_to_openai(f"content/{uploaded_file.name}")
-            local_session['file_id_list'].append(additional_file_id)
-            st.sidebar.write(f"Additional File ID: {additional_file_id}")
+# Button to upload a user's file and store the file ID
+if expander.button("Upload File"):
+    # Upload file provided by user
+    if uploaded_file:
+        with open(f"content/{uploaded_file.name}", "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        additional_file_id = upload_to_openai(f"content/{uploaded_file.name}")
+        local_session['file_id_list'].append(additional_file_id)
+        expander.write(f"Additional File ID: {additional_file_id}")
 
-    # Display all file IDs
-    if local_session['file_id_list']:
-        st.sidebar.write("Uploaded File IDs:")
-        for file_id in local_session['file_id_list']:
-            st.sidebar.write(file_id)
-            # Associate files with the assistant
-            assistant_file = client.beta.assistants.files.create(
-                assistant_id=assistant_id, 
-                file_id=file_id
-            )
+# Display all file IDs
+if local_session['file_id_list']:
+    expander.write("Uploaded File IDs:")
+    for file_id in local_session['file_id_list']:
+        expander.write(file_id)
+        # Associate files with the assistant
+        assistant_file = client.beta.assistants.files.create(
+            assistant_id=assistant_id, 
+            file_id=file_id
+        )
 
-    # # Button to start the chat session
-    # if st.sidebar.button("Start Chat"):
-    #     # Check if files are uploaded before starting chat
-    #     if local_session['file_id_list']:
-    #         local_session['start_chat'] = True
-    #         # Create a thread once and store its ID in session state
-    #         thread = client.beta.threads.create()
-    #         local_session['thread_id'] = thread.id
-    #         st.write("thread id: ", thread.id)
-    #     else:
-    #         st.sidebar.warning("Please upload at least one file to start the chat.")
+# # Button to start the chat session
+# if st.sidebar.button("Start Chat"):
+#     # Check if files are uploaded before starting chat
+#     if local_session['file_id_list']:
+#         local_session['start_chat'] = True
+#         # Create a thread once and store its ID in session state
+#         thread = client.beta.threads.create()
+#         local_session['thread_id'] = thread.id
+#         st.write("thread id: ", thread.id)
+#     else:
+#         st.sidebar.warning("Please upload at least one file to start the chat.")
 
 
 
-    # Button to start the chat session ================== MODIF BY JER
-    if st.sidebar.button("Start Chat"):
-        # Check if files are uploaded before starting chat
-        local_session['start_chat'] = True
-        # Create a thread once and store its ID in session state
-        thread = client.beta.threads.create()
-        local_session['thread_id'] = thread.id
-        # st.write("thread id: ", thread.id)
+# Button to start the chat session ================== MODIF BY JER
+if st.sidebar.button("Start a new Chat"):
+    st.session_state[local_session_name] = {}
+
+    local_session = st.session_state[local_session_name]    
+
+    # # Check if files are uploaded before starting chat
+    # local_session['start_chat'] = True
+    # # Create a thread once and store its ID in session state
+    # thread = client.beta.threads.create()
+    # local_session['thread_id'] = thread.id
+    # # st.write("thread id: ", thread.id)
 
 
 # # Button to start the chat session ================== MODIF BY JER
