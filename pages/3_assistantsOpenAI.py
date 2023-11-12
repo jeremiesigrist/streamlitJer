@@ -251,7 +251,7 @@ with col2:
 
 
 
-st.write("Tu peux peux continuer une conversation passée en cliquant sur le bouton correspondant")
+st.write("Tu peux continuer une conversation passée en cliquant sur le bouton correspondant à gauche")
 st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
 
 # Only show the chat interface if the chat has been started
