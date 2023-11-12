@@ -263,9 +263,19 @@ st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que 
 # Only show the chat interface if the chat has been started
 # if local_session['start_chat']:
 # Initialize the model and messages list if not already in session state
+options_models = ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"]
 if "openai_model" not in local_session:
+    # Liste d'options
+
+
+    # Sélection de l'option
+    local_session['openai_model'] = st.sidebar.selectbox("Model", options_models)
     # local_session['openai_model'] = "gpt-4-1106-preview"   # gratuit jusqu'au 17/11 ==> NON
-    local_session['openai_model'] = "gpt-3.5-turbo-1106"   
+    # local_session['openai_model'] = "gpt-3.5-turbo-1106"   
+else:
+    index = options_models.index(local_session['openai_model'])
+    st.sidebar.selectbox('Model', options_models, index=index)
+
 if "messages" not in local_session:
     local_session['messages'] = []
 
