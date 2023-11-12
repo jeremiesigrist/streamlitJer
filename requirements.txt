@@ -1,5 +1,7 @@
 openai
 langchain
+streamlit
+requests
 spacy
 langdetect
 streamlit_chat
@@ -12,3 +14,5 @@ transformers
 streamlit-extras
 tokenizers
 replicate
+beautifulsoup4
+pdfkit
