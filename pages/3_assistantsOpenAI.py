@@ -16,8 +16,8 @@ client = openai
 if "file_id_list" not in st.session_state:
     st.session_state.file_id_list = []
 
-if "start_chat" not in st.session_state:
-    st.session_state.start_chat = False
+# if "start_chat" not in st.session_state:
+#     st.session_state.start_chat = False
 
 if "thread_id" not in st.session_state:
     st.session_state.thread_id = None
@@ -121,7 +121,17 @@ if st.sidebar.button("Start Chat"):
     # Create a thread once and store its ID in session state
     thread = client.beta.threads.create()
     st.session_state.thread_id = thread.id
-    st.write("thread id: ", thread.id)
+    # st.write("thread id: ", thread.id)
+
+
+# # Button to start the chat session ================== MODIF BY JER
+# if st.sidebar.button("Start Chat"):
+#     # Check if files are uploaded before starting chat
+st.session_state.start_chat = True
+# Create a thread once and store its ID in session state
+thread = client.beta.threads.create()
+st.session_state.thread_id = thread.id
+# st.write("thread id: ", thread.id)    
 
 # Define the function to process messages with citations
 def process_message_with_citations(message):
@@ -152,67 +162,78 @@ def process_message_with_citations(message):
 
 
 # Main chat interface setup
-st.title("Assistant et Coach pour Elodie")
-st.write('Appuies sur "Start Chat" en bas à gauche pour commencer')
+from PIL import Image
+image = Image.open('pages/images/_d4dc0b47-ad66-4004-aad1-509cb34d3d18.jpg')
+
+col1, mid, col2 = st.columns([1,5,30])
+with col1:
+    st.image(image, width=100 )
+with col2:
+    st.title("Assistant et Coach")
+
+
+
+
+st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
 
 # Only show the chat interface if the chat has been started
-if st.session_state.start_chat:
-    # Initialize the model and messages list if not already in session state
-    if "openai_model" not in st.session_state:
-        # st.session_state.openai_model = "gpt-4-1106-preview"
-        st.session_state.openai_model = "gpt-4-1106-preview"   # gratuit jusqu'au 17/11
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# if st.session_state.start_chat:
+# Initialize the model and messages list if not already in session state
+if "openai_model" not in st.session_state:
+    # st.session_state.openai_model = "gpt-4-1106-preview"
+    st.session_state.openai_model = "gpt-4-1106-preview"   # gratuit jusqu'au 17/11
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-    # Display existing messages in the chat
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+# Display existing messages in the chat
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-    # Chat input for the user
-    if prompt := st.chat_input("Bonjour comment vas tu aujourd'hui?"):
-        # Add user message to the state and display it
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+# Chat input for the user
+if prompt := st.chat_input("Bonjour comment vas tu aujourd'hui?"):
+    # Add user message to the state and display it
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-        # Add the user's message to the existing thread
-        client.beta.threads.messages.create(
+    # Add the user's message to the existing thread
+    client.beta.threads.messages.create(
+        thread_id=st.session_state.thread_id,
+        role="user",
+        content=prompt
+    )
+
+    # Create a run with additional instructions
+    run = client.beta.threads.runs.create(
+        thread_id=st.session_state.thread_id,
+        assistant_id=assistant_id,
+        # instructions="Please answer the queries using the knowledge provided in the files.When adding other information mark it clearly as such.with a different color"
+    )
+
+    # Poll for the run to complete and retrieve the assistant's messages
+    while run.status != 'completed':
+        time.sleep(1)
+        run = client.beta.threads.runs.retrieve(
             thread_id=st.session_state.thread_id,
-            role="user",
-            content=prompt
+            run_id=run.id
         )
 
-        # Create a run with additional instructions
-        run = client.beta.threads.runs.create(
-            thread_id=st.session_state.thread_id,
-            assistant_id=assistant_id,
-            # instructions="Please answer the queries using the knowledge provided in the files.When adding other information mark it clearly as such.with a different color"
-        )
+    # Retrieve messages added by the assistant
+    messages = client.beta.threads.messages.list(
+        thread_id=st.session_state.thread_id
+    )
 
-        # Poll for the run to complete and retrieve the assistant's messages
-        while run.status != 'completed':
-            time.sleep(1)
-            run = client.beta.threads.runs.retrieve(
-                thread_id=st.session_state.thread_id,
-                run_id=run.id
-            )
-
-        # Retrieve messages added by the assistant
-        messages = client.beta.threads.messages.list(
-            thread_id=st.session_state.thread_id
-        )
-
-        # Process and display assistant messages
-        assistant_messages_for_run = [
-            message for message in messages 
-            if message.run_id == run.id and message.role == "assistant"
-        ]
-        for message in assistant_messages_for_run:
-            full_response = process_message_with_citations(message)
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-            with st.chat_message("assistant"):
-                st.markdown(full_response, unsafe_allow_html=True)
-else:
-    # Prompt to start the chat
-    st.write("tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
+    # Process and display assistant messages
+    assistant_messages_for_run = [
+        message for message in messages 
+        if message.run_id == run.id and message.role == "assistant"
+    ]
+    for message in assistant_messages_for_run:
+        full_response = process_message_with_citations(message)
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        with st.chat_message("assistant"):
+            st.markdown(full_response, unsafe_allow_html=True)
+# else:
+#     # Prompt to start the chat
+#     st.write("tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
