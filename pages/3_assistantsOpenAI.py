@@ -5,22 +5,69 @@ from bs4 import BeautifulSoup
 import requests
 import pdfkit
 import time
+import os
+import pickle
+import re
+import datetime
 
 # Set your OpenAI Assistant ID here
 assistant_id = 'asst_wt8cJpl71BTSIy5njLxZ61go'
 
 # Initialize the OpenAI client (ensure to set your API key in the sidebar within the app)
 client = openai
+ 
+
+
+# Fonction pour sauvegarder la variable dans un fichier
+def sauvegarder_variable(variable, nom_fichier):
+    with open(nom_fichier, 'wb') as fichier:
+        pickle.dump(variable, fichier)
+
+# Fonction pour charger la variable depuis un fichier
+def charger_variable(nom_fichier):
+    with open(nom_fichier, 'rb') as fichier:
+        variable = pickle.load(fichier)
+    return variable
+
+def convertir_en_nom_de_fichier(chaine):
+    # Supprimer les caractères spéciaux et les espaces
+    chaine = re.sub(r'[^\w\s]', ' ', chaine)
+    # Remplacer les espaces par des tirets bas
+    chaine = chaine.replace(' ', '_')
+    # Limiter la longueur à 255 caractères (limite généralement acceptée sur de nombreux systèmes de fichiers)
+    chaine = chaine[:255]
+    # Supprimer les tirets bas consécutifs et en fin de chaîne
+    chaine = re.sub('_+', '_', chaine)
+    chaine = chaine.rstrip('_')
+    return chaine
+
+# Dossier où seront stockés les fichiers
+dossier_fichiers_init = 'fichiers_sessions'
+
+local_session_name = "3_assistantsOpenAI"
+
+dossier_fichiers = dossier_fichiers_init + '/' + local_session_name
+
+os.makedirs(dossier_fichiers, exist_ok=True)
+
+if local_session_name not in st.session_state:
+    st.session_state[local_session_name] = {}
+ 
+local_session = st.session_state[local_session_name]
 
 # Initialize session state variables for file IDs and chat control
-if "file_id_list" not in st.session_state:
-    st.session_state.file_id_list = []
+if "file_id_list" not in local_session:
+    local_session['file_id_list'] = []
+
+# local_session['AAAA']="TUTUT_TEZRTZETRZERTZERT"
+
+# st.write(st.session_state)
 
 # if "start_chat" not in st.session_state:
-#     st.session_state.start_chat = False
+#     local_session['start_chat'] = False
 
 if "thread_id" not in st.session_state:
-    st.session_state.thread_id = None
+    local_session['thread_id'] = None
 
 # Set up the Streamlit page with a title and icon
 st.set_page_config(page_title="ChatGPT-like Chat App", page_icon=":speech_balloon:")
@@ -45,8 +92,38 @@ def upload_to_openai(filepath):
         response = openai.files.create(file=file.read(), purpose="assistants")
     return response.id
 
+
+# Barre de menu latérale
+st.sidebar.title('Liste des sessions')
+
+# Liste des fichiers existants
+fichiers_existant = os.listdir(dossier_fichiers)
+
+# Si aucun fichier n'existe, afficher un message
+if not fichiers_existant:
+    st.sidebar.warning("Pas encore de sessions enregistrée.")
+else:
+    for fichier in fichiers_existant:
+        fichier_path = os.path.join(dossier_fichiers, fichier)
+
+        timestamp_creation = os.path.getctime(fichier_path)
+        date_creation = datetime.datetime.fromtimestamp(timestamp_creation).strftime("%Y-%m-%d  %H:%M:%S")
+        bouton_texte = f"{fichier}"
+        bouton_help = f"Date d'enregistrement: {date_creation}"
+
+        if st.sidebar.button(bouton_texte, help=bouton_help):
+            # Action à effectuer lorsqu'un bouton est cliqué
+            # st.write(f"Vous avez cliqué sur le fichier {fichier}")
+            # Charger la variable du fichier sélectionné
+            st.session_state[local_session_name] = charger_variable(fichier_path)
+
+            local_session = st.session_state[local_session_name]
+
+            # st.write('Variable chargée:', local_session)
+
+
 # Create a sidebar for API key configuration and additional features
-st.sidebar.header("Configuration")
+# st.sidebar.header("Configuration")
 
 try:
     # st.write('ST SECRET')
@@ -64,73 +141,74 @@ if openai_api_key:
     openai.api_key = openai_api_key
 
 # Additional features in the sidebar for web scraping and file uploading
-st.sidebar.header("Additional Features")
-website_url = st.sidebar.text_input("Enter a website URL to scrape and organize into a PDF", key="website_url")
+with st.expander(label = "Additional Features", expanded=True):
+    # st.sidebar.header("Additional Features")
+    website_url = st.sidebar.text_input("Enter a website URL to scrape and organize into a PDF", key="website_url")
 
-# Button to scrape a website, convert to PDF, and upload to OpenAI
-if st.sidebar.button("Scrape and Upload"):
-    # Scrape, convert, and upload process
-    scraped_text = scrape_website(website_url)
-    pdf_path = text_to_pdf(scraped_text, "scraped_content.pdf")
-    file_id = upload_to_openai(pdf_path)
-    st.session_state.file_id_list.append(file_id)
-    #st.sidebar.write(f"File ID: {file_id}")
+    # Button to scrape a website, convert to PDF, and upload to OpenAI
+    if st.sidebar.button("Scrape and Upload"):
+        # Scrape, convert, and upload process
+        scraped_text = scrape_website(website_url)
+        pdf_path = text_to_pdf(scraped_text, "content/scraped_content.pdf")
+        file_id = upload_to_openai(pdf_path)
+        local_session['file_id_list'].append(file_id)
+        #st.sidebar.write(f"File ID: {file_id}")
 
-# Sidebar option for users to upload their own files
-uploaded_file = st.sidebar.file_uploader("Upload a file to OpenAI embeddings", key="file_uploader")
+    # Sidebar option for users to upload their own files
+    uploaded_file = st.sidebar.file_uploader("Upload a file to OpenAI embeddings", key="file_uploader")
 
-# Button to upload a user's file and store the file ID
-if st.sidebar.button("Upload File"):
-    # Upload file provided by user
-    if uploaded_file:
-        with open(f"{uploaded_file.name}", "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        additional_file_id = upload_to_openai(f"{uploaded_file.name}")
-        st.session_state.file_id_list.append(additional_file_id)
-        st.sidebar.write(f"Additional File ID: {additional_file_id}")
+    # Button to upload a user's file and store the file ID
+    if st.sidebar.button("Upload File"):
+        # Upload file provided by user
+        if uploaded_file:
+            with open(f"content/{uploaded_file.name}", "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            additional_file_id = upload_to_openai(f"content/{uploaded_file.name}")
+            local_session['file_id_list'].append(additional_file_id)
+            st.sidebar.write(f"Additional File ID: {additional_file_id}")
 
-# Display all file IDs
-if st.session_state.file_id_list:
-    st.sidebar.write("Uploaded File IDs:")
-    for file_id in st.session_state.file_id_list:
-        st.sidebar.write(file_id)
-        # Associate files with the assistant
-        assistant_file = client.beta.assistants.files.create(
-            assistant_id=assistant_id, 
-            file_id=file_id
-        )
+    # Display all file IDs
+    if local_session['file_id_list']:
+        st.sidebar.write("Uploaded File IDs:")
+        for file_id in local_session['file_id_list']:
+            st.sidebar.write(file_id)
+            # Associate files with the assistant
+            assistant_file = client.beta.assistants.files.create(
+                assistant_id=assistant_id, 
+                file_id=file_id
+            )
 
-# # Button to start the chat session
-# if st.sidebar.button("Start Chat"):
-#     # Check if files are uploaded before starting chat
-#     if st.session_state.file_id_list:
-#         st.session_state.start_chat = True
-#         # Create a thread once and store its ID in session state
-#         thread = client.beta.threads.create()
-#         st.session_state.thread_id = thread.id
-#         st.write("thread id: ", thread.id)
-#     else:
-#         st.sidebar.warning("Please upload at least one file to start the chat.")
+    # # Button to start the chat session
+    # if st.sidebar.button("Start Chat"):
+    #     # Check if files are uploaded before starting chat
+    #     if local_session['file_id_list']:
+    #         local_session['start_chat'] = True
+    #         # Create a thread once and store its ID in session state
+    #         thread = client.beta.threads.create()
+    #         local_session['thread_id'] = thread.id
+    #         st.write("thread id: ", thread.id)
+    #     else:
+    #         st.sidebar.warning("Please upload at least one file to start the chat.")
 
 
 
-# Button to start the chat session ================== MODIF BY JER
-if st.sidebar.button("Start Chat"):
-    # Check if files are uploaded before starting chat
-    st.session_state.start_chat = True
-    # Create a thread once and store its ID in session state
-    thread = client.beta.threads.create()
-    st.session_state.thread_id = thread.id
-    # st.write("thread id: ", thread.id)
+    # Button to start the chat session ================== MODIF BY JER
+    if st.sidebar.button("Start Chat"):
+        # Check if files are uploaded before starting chat
+        local_session['start_chat'] = True
+        # Create a thread once and store its ID in session state
+        thread = client.beta.threads.create()
+        local_session['thread_id'] = thread.id
+        # st.write("thread id: ", thread.id)
 
 
 # # Button to start the chat session ================== MODIF BY JER
 # if st.sidebar.button("Start Chat"):
 #     # Check if files are uploaded before starting chat
-st.session_state.start_chat = True
+local_session['start_chat'] = True
 # Create a thread once and store its ID in session state
 thread = client.beta.threads.create()
-st.session_state.thread_id = thread.id
+local_session['thread_id'] = thread.id
 # st.write("thread id: ", thread.id)    
 
 # Define the function to process messages with citations
@@ -173,40 +251,40 @@ with col2:
 
 
 
-
+st.write("Tu peux peux continuer une conversation passée en cliquant sur le bouton correspondant")
 st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
 
 # Only show the chat interface if the chat has been started
-# if st.session_state.start_chat:
+# if local_session['start_chat']:
 # Initialize the model and messages list if not already in session state
-if "openai_model" not in st.session_state:
-    # st.session_state.openai_model = "gpt-4-1106-preview"
-    st.session_state.openai_model = "gpt-4-1106-preview"   # gratuit jusqu'au 17/11
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+if "openai_model" not in local_session:
+    # local_session['openai_model'] = "gpt-4-1106-preview"   # gratuit jusqu'au 17/11 ==> NON
+    local_session['openai_model'] = "gpt-3.5-turbo-1106"   
+if "messages" not in local_session:
+    local_session['messages'] = []
 
 # Display existing messages in the chat
-for message in st.session_state.messages:
+for message in local_session['messages']:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 # Chat input for the user
 if prompt := st.chat_input("Bonjour comment vas tu aujourd'hui?"):
     # Add user message to the state and display it
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    local_session['messages'].append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     # Add the user's message to the existing thread
     client.beta.threads.messages.create(
-        thread_id=st.session_state.thread_id,
+        thread_id=local_session['thread_id'],
         role="user",
         content=prompt
     )
 
     # Create a run with additional instructions
     run = client.beta.threads.runs.create(
-        thread_id=st.session_state.thread_id,
+        thread_id=local_session['thread_id'],
         assistant_id=assistant_id,
         # instructions="Please answer the queries using the knowledge provided in the files.When adding other information mark it clearly as such.with a different color"
     )
@@ -215,13 +293,13 @@ if prompt := st.chat_input("Bonjour comment vas tu aujourd'hui?"):
     while run.status != 'completed':
         time.sleep(1)
         run = client.beta.threads.runs.retrieve(
-            thread_id=st.session_state.thread_id,
+            thread_id=local_session['thread_id'],
             run_id=run.id
         )
 
     # Retrieve messages added by the assistant
     messages = client.beta.threads.messages.list(
-        thread_id=st.session_state.thread_id
+        thread_id=local_session['thread_id']
     )
 
     # Process and display assistant messages
@@ -231,9 +309,19 @@ if prompt := st.chat_input("Bonjour comment vas tu aujourd'hui?"):
     ]
     for message in assistant_messages_for_run:
         full_response = process_message_with_citations(message)
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        local_session['messages'].append({"role": "assistant", "content": full_response})
         with st.chat_message("assistant"):
             st.markdown(full_response, unsafe_allow_html=True)
+
+# st.write(st.session_state)
+
+if len(local_session["messages"]) > 0:
+    # st.write("sauvegarde de la sessions")
+    nom_fichier_valide = convertir_en_nom_de_fichier(local_session["messages"][0]["content"][:30])
+    nom_fichier_valide = nom_fichier_valide+'.pck'
+    # st.write(nom_fichier_valide)
+    sauvegarder_variable(local_session, dossier_fichiers + '/' + nom_fichier_valide)
+
 # else:
 #     # Prompt to start the chat
 #     st.write("tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
