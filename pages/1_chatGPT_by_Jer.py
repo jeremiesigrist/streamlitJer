@@ -18,8 +18,17 @@ st.set_page_config(
 import sys
 sys.path.insert(1, '/')
 import openai
-openai_api_key = st.secrets["OPENAI_API_KEY"]
-openai.api_key = openai_api_key
+try:
+    # st.write('ST SECRET')
+    openai_api_key = st.secrets["OPENAI_API_KEY"]
+except Exception as e:
+    import os
+    # st.write('ST OS')
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    # st.write('ST OS end', openai_api_key)
+
+
+
 DEBUG = False
 
 from langchain.memory import ChatMessageHistory
@@ -46,11 +55,16 @@ nlp_model_FR = "fr_core_news_md"
 
 
 LOAD_ALL_MODELS_LANG = False
+try:
+    words2anon_list = st.secrets["WORDS_LIST"]
+    cles = st.secrets["WORDS_KEY"]   # liste de mots a remplacer
+    valeurs = st.secrets["WORDS_VALUE"]
+except Exception as e:
+    import os
+    words2anon_list = os.getenv("WORDS_LIST")
+    cles = os.getenv("WORDS_KEY")
+    valeurs = os.getenv("WORDS_VALUE")
 
-words2anon_list = st.secrets["WORDS_LIST"]
-
-cles = st.secrets["WORDS_KEY"]   # liste de mots a remplacer
-valeurs = st.secrets["WORDS_VALUE"]
 
 WORDS_DICT = {}
 for cle, valeur in zip(cles, valeurs):
@@ -249,7 +263,7 @@ def deanonymize_text(text, codes_json):
 
 
 #st.write(custom_codes)
-openai.api_key = openai_api_key
+
 
 
 #model_default='gpt-4'
@@ -263,11 +277,18 @@ history = ChatMessageHistory()
 
 #st.write(openai)
 
-list_models = openai.Model.list()
+from openai import OpenAI
+client = OpenAI()
+
+list_models = client.models.list()
 # st.write(list_models)
-models = list_models['data']
+
+# models = list_models['data']
 # st.write(models)
-model_list = [x['id'] for x in models]
+# model_list = [x['id'] for x in models]
+
+model_list = [model.id for model in list_models.data]
+
 model_list = [v for v in model_list if 'gpt' in v]
 
 
