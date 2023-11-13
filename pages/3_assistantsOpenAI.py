@@ -139,12 +139,10 @@ try:
     # st.write('ST SECRET')
     openai_api_key = st.secrets["OPENAI_API_KEY"]
 except Exception as e:
-    try:
-        import os
-        # st.write('ST OS')
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        # st.write('ST OS end', openai_api_key)
-    except Exception as e:
+    import os
+    # st.write('ST OS')
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if not openai_api_key:
         openai_api_key = st.sidebar.text_input("Enter your OpenAI API key", type="password")
  
 if openai_api_key:

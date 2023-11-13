@@ -11,3 +11,8 @@ RUN apt-get update && \
 RUN pip install --no-cache-dir -r requirements.txt
 
 CMD ["streamlit", "run", "Home.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port", "8505", "--theme.base", "dark"]
+
+
+# docker build .
+# docker run -d -p 8505:8505 -v /shared/ubuntu/code/streamlitJer:/app myfirstimagestreamlitjer
+# ou utiliser le docker-compose

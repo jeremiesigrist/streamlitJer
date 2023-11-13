@@ -1,0 +1,11 @@
+version: '3'
+services:
+  streamlitjer:
+    image: myfirstimagestreamlitjer
+    env_file:
+      - .streamlit/secrets.toml
+    ports:
+      - "8505:8505"
+    volumes:
+      - /shared/ubuntu/code/streamlitJer:/app
+    restart: unless-stopped    
