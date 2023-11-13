@@ -94,9 +94,9 @@ def upload_to_openai(filepath):
 
 
 # Barre de menu latérale
-expander_sessions = st.sidebar.expander(label = "Liste des sessions", expanded=True)
+expander_sessions = st.sidebar.expander(label = "Liste des conversations", expanded=True)
 
-# st.sidebar.title('Liste des sessions')
+# st.sidebar.title('Liste des conversations')
 
 # Liste des fichiers existants
 # fichiers_existant = os.listdir(dossier_fichiers)

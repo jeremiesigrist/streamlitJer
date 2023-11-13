@@ -2,7 +2,7 @@ version: '3'
 services:
   streamlitjer:
     container_name: streamlitjer
-    image: myfirstimagestreamlitjer
+    image: streamlitjer_image:latest
     env_file:
       - .streamlit/secrets.toml
     ports:
