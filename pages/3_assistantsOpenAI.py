@@ -99,25 +99,33 @@ expander_sessions = st.sidebar.expander(label = "Liste des sessions", expanded=T
 # st.sidebar.title('Liste des sessions')
 
 # Liste des fichiers existants
-fichiers_existant = os.listdir(dossier_fichiers)
+# fichiers_existant = os.listdir(dossier_fichiers)
+
+
+# Liste des fichiers existants avec les chemins complets
+chemins_fichiers = [os.path.join(dossier_fichiers, fichier) for fichier in os.listdir(dossier_fichiers)]
+# st.write(chemins_fichiers)
+# Trier les fichiers par date de création croissante
+fichiers_existant = sorted(chemins_fichiers, key=os.path.getctime, reverse=True)
+# st.write(fichiers_existant)
 
 # Si aucun fichier n'existe, afficher un message
 if not fichiers_existant:
     expander_sessions.warning("Pas encore de sessions enregistrée.")
 else:
     for fichier in fichiers_existant:
-        fichier_path = os.path.join(dossier_fichiers, fichier)
+        # fichier_path = os.path.join(dossier_fichiers, fichier)
 
-        timestamp_creation = os.path.getctime(fichier_path)
+        timestamp_creation = os.path.getctime(fichier)
         date_creation = datetime.datetime.fromtimestamp(timestamp_creation).strftime("%Y-%m-%d  %H:%M:%S")
-        bouton_texte = f"{fichier}"
+        bouton_texte = f"{fichier.replace(dossier_fichiers+'/','')}"
         bouton_help = f"Date d'enregistrement: {date_creation}"
 
         if expander_sessions.button(bouton_texte, help=bouton_help):
             # Action à effectuer lorsqu'un bouton est cliqué
             # st.write(f"Vous avez cliqué sur le fichier {fichier}")
             # Charger la variable du fichier sélectionné
-            st.session_state[local_session_name] = charger_variable(fichier_path)
+            st.session_state[local_session_name] = charger_variable(fichier)
 
             local_session = st.session_state[local_session_name]
 
