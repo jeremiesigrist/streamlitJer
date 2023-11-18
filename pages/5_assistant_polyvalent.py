@@ -9,13 +9,28 @@ import os
 import pickle
 import re
 import datetime
+from PIL import Image
+def remove_file_extension(filename):
+    # Utilisation de rsplit pour gérer les cas où plusieurs points sont présents dans le nom de fichier
+    return filename.rsplit('.', 1)[0]
 
 # Set your OpenAI Assistant ID here
-assistant_id = os.getenv("assistant_id1")
+assistant_id = os.getenv("assistant_id3")
+local_session_name = remove_file_extension(os.path.basename(__file__))
+name_of_the_assistant = 'Assistant Généraliste'
+image = Image.open('pages/images/_7799aef9-ed19-4590-8d62-31a5f6cd2dc9.jpg')
+
+
+
 
 # Initialize the OpenAI client (ensure to set your API key in the sidebar within the app)
 client = openai
  
+
+
+
+
+
 
 
 # Fonction pour sauvegarder la variable dans un fichier
@@ -44,7 +59,7 @@ def convertir_en_nom_de_fichier(chaine):
 # Dossier où seront stockés les fichiers
 dossier_fichiers_init = 'fichiers_sessions'
 
-local_session_name = "3_assistantsOpenAI"
+
 
 dossier_fichiers = dossier_fichiers_init + '/' + local_session_name
 
@@ -66,9 +81,13 @@ if "file_id_list" not in local_session:
 # if "start_chat" not in st.session_state:
 #     local_session['start_chat'] = False
 
+# if "thread_id" not in st.session_state:
+#     local_session['thread_id'] = None
+
+
 if "thread_id" not in local_session:    
     thread = client.beta.threads.create()
-    local_session['thread_id'] = thread.id
+    local_session['thread_id'] = thread.id    
 
 # Set up the Streamlit page with a title and icon
 st.set_page_config(page_title="ChatGPT-like Chat App", page_icon=":speech_balloon:")
@@ -252,20 +271,18 @@ def process_message_with_citations(message):
 
 
 
-# Main chat interface setup
-from PIL import Image
-image = Image.open('pages/images/_d4dc0b47-ad66-4004-aad1-509cb34d3d18.jpg')
+
 
 col1, mid, col2 = st.columns([1,5,30])
 with col1:
     st.image(image, width=100 )
 with col2:
-    st.title("Assistant et Coach")
+    st.title(name_of_the_assistant)
 
 
 
-st.write("Tu peux continuer une conversation passée en cliquant sur le bouton correspondant à gauche")
-st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
+# st.write("Tu peux continuer une conversation passée en cliquant sur le bouton correspondant à gauche")
+# st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
 
 # Only show the chat interface if the chat has been started
 # if local_session['start_chat']:

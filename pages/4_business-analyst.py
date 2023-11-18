@@ -11,7 +11,8 @@ import re
 import datetime
 
 # Set your OpenAI Assistant ID here
-assistant_id = os.getenv("assistant_id1")
+assistant_id = os.getenv("assistant_id2")
+
 
 # Initialize the OpenAI client (ensure to set your API key in the sidebar within the app)
 client = openai
@@ -44,7 +45,7 @@ def convertir_en_nom_de_fichier(chaine):
 # Dossier où seront stockés les fichiers
 dossier_fichiers_init = 'fichiers_sessions'
 
-local_session_name = "3_assistantsOpenAI"
+local_session_name = "4_business-analyst"
 
 dossier_fichiers = dossier_fichiers_init + '/' + local_session_name
 
@@ -254,18 +255,18 @@ def process_message_with_citations(message):
 
 # Main chat interface setup
 from PIL import Image
-image = Image.open('pages/images/_d4dc0b47-ad66-4004-aad1-509cb34d3d18.jpg')
+image = Image.open('pages/images/_8effd6f2-af33-4c2c-878c-5d41773743dc.jpg')
 
 col1, mid, col2 = st.columns([1,5,30])
 with col1:
     st.image(image, width=100 )
 with col2:
-    st.title("Assistant et Coach")
+    st.title("Business Analyst")
 
 
 
-st.write("Tu peux continuer une conversation passée en cliquant sur le bouton correspondant à gauche")
-st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
+# st.write("Tu peux continuer une conversation passée en cliquant sur le bouton correspondant à gauche")
+# st.write("Tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")
 
 # Only show the chat interface if the chat has been started
 # if local_session['start_chat']:
