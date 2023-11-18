@@ -1,3 +1,4 @@
+
 # Import necessary libraries
 import openai
 import streamlit as st
@@ -10,17 +11,28 @@ import pickle
 import re
 import datetime
 from PIL import Image
+
+# Set up the Streamlit page with a title and icon
+st.set_page_config(page_title="ChatGPT-like Chat App", page_icon=":speech_balloon:")
+
+
 def remove_file_extension(filename):
     # Utilisation de rsplit pour gérer les cas où plusieurs points sont présents dans le nom de fichier
     return filename.rsplit('.', 1)[0]
 
+
+
+###################################################################################################
 # Set your OpenAI Assistant ID here
-assistant_id = os.getenv("assistant_id3")
+assistant_id = os.getenv("assistant_id5")
+name_of_the_assistant = 'Assistant en orientation'
+image = Image.open('pages/images/_02307e23-1bbe-42a0-ae85-3bd9b1b54649.jpg')
+###################################################################################################
+
+
+
+
 local_session_name = remove_file_extension(os.path.basename(__file__))
-name_of_the_assistant = 'Assistant Généraliste'
-image = Image.open('pages/images/_7799aef9-ed19-4590-8d62-31a5f6cd2dc9.jpg')
-
-
 
 
 # Initialize the OpenAI client (ensure to set your API key in the sidebar within the app)
@@ -81,16 +93,15 @@ if "file_id_list" not in local_session:
 # if "start_chat" not in st.session_state:
 #     local_session['start_chat'] = False
 
-# if "thread_id" not in st.session_state:
-#     local_session['thread_id'] = None
-
-
-if "thread_id" not in local_session:    
+if "thread_id" not in local_session:   
+    # st.write("on passe par la !!!!!!!!!!!!!!!!!!!!!!!!!!") 
     thread = client.beta.threads.create()
-    local_session['thread_id'] = thread.id    
+    local_session['thread_id'] = thread.id
+    
+# Create a thread once and store its ID in session state
 
-# Set up the Streamlit page with a title and icon
-st.set_page_config(page_title="ChatGPT-like Chat App", page_icon=":speech_balloon:")
+    
+
 
 # Define functions for scraping, converting text to PDF, and uploading to OpenAI
 def scrape_website(url):
@@ -238,9 +249,10 @@ if st.sidebar.button("Start a new Chat"):
 # if st.sidebar.button("Start Chat"):
 #     # Check if files are uploaded before starting chat
 local_session['start_chat'] = True
-# Create a thread once and store its ID in session state
-# thread = client.beta.threads.create()
-# local_session['thread_id'] = thread.id
+
+
+
+
 # st.write("thread id: ", thread.id)    
 
 # Define the function to process messages with citations
@@ -362,7 +374,7 @@ if len(local_session["messages"]) > 0:
     # st.write(nom_fichier_valide)
     if prompt:
         sauvegarder_variable(local_session, dossier_fichiers + '/' + nom_fichier_valide)
-
+    # st.write(local_session)
 # else:
 #     # Prompt to start the chat
 #     st.write("tu peux uploader des fichiers d'instruction pour m'aider (en tant que coach) à améliorer mes reponses")

@@ -344,7 +344,8 @@ if len(local_session["messages"]) > 0:
     nom_fichier_valide = convertir_en_nom_de_fichier(local_session["messages"][0]["content"][:30])
     nom_fichier_valide = nom_fichier_valide+'.pck'
     # st.write(nom_fichier_valide)
-    sauvegarder_variable(local_session, dossier_fichiers + '/' + nom_fichier_valide)
+    if prompt:
+        sauvegarder_variable(local_session, dossier_fichiers + '/' + nom_fichier_valide)
 
 # else:
 #     # Prompt to start the chat
