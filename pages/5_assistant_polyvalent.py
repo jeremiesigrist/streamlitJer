@@ -109,7 +109,7 @@ def text_to_pdf(text, filename):
 def upload_to_openai(filepath):
     """Upload a file to OpenAI and return its file ID."""
     with open(filepath, "rb") as file:
-        response = openai.files.create(file=file.read(), purpose="assistants")
+        response = openai.files.create(file=file, purpose="assistants")
     return response.id
 
 
@@ -336,18 +336,21 @@ if prompt := st.chat_input("Bonjour comment vas tu aujourd'hui?"):
             thread_id=local_session['thread_id'],
             run_id=run.id
         )
+        # st.write(run)
 
     # Retrieve messages added by the assistant
     messages = client.beta.threads.messages.list(
         thread_id=local_session['thread_id']
     )
+    # st.write(messages)
+
 
     # Process and display assistant messages
     assistant_messages_for_run = [
         message for message in messages 
         if message.run_id == run.id and message.role == "assistant"
     ]
-    for message in assistant_messages_for_run:
+    for message in assistant_messages_for_run[::-1]:
         full_response = process_message_with_citations(message)
         local_session['messages'].append({"role": "assistant", "content": full_response})
         with st.chat_message("assistant"):
