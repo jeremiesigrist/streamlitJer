@@ -65,7 +65,7 @@ cols = st.columns(cols_per_row)
  
 with cols[0]:
     st.image('./images/jellyfin.png', width=130, caption="jellyfin internet")
-    st.markdown(f"[Ouvrir la page...](https://jellyfin.sigrist31.online)", unsafe_allow_html=True)
+    st.markdown(f"[Ouvrir la page...](https://mesvideos.sigrist31.online)", unsafe_allow_html=True)
 
 with cols[1]:
     st.image('./images/jellyfin.png', width=130, caption="jellyfin local")
