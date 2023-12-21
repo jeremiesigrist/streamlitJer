@@ -20,3 +20,4 @@ https://github.com/explosion/spacy-models/releases/download/fr_core_news_md-3.5.
 https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.5.0/en_core_web_md-3.5.0-py3-none-any.whl
 https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.5.0/en_core_web_trf-3.5.0-py3-none-any.whl
 https://github.com/explosion/spacy-models/releases/download/fr_dep_news_trf-3.5.0/fr_dep_news_trf-3.5.0-py3-none-any.whl
+plotly

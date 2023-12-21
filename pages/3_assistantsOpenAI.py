@@ -73,12 +73,35 @@ if "thread_id" not in local_session:
 # Set up the Streamlit page with a title and icon
 st.set_page_config(page_title="ChatGPT-like Chat App", page_icon=":speech_balloon:")
 
-# Define functions for scraping, converting text to PDF, and uploading to OpenAI
+
+import unicodedata
+import string
+# Helper function to normalize text
+def normalize_text(text):
+    """Replace spaces with underscores and remove accents from characters."""
+    normalized_text = unicodedata.normalize('NFD', text)
+    normalized_text = normalized_text.encode('ascii', 'ignore').decode("utf-8")
+    normalized_text = normalized_text.replace(' ', '_')
+    valid_chars = f"-_.{string.ascii_letters}{string.digits}"
+    normalized_text = ''.join(c for c in normalized_text if c in valid_chars)
+    return normalized_text.lower()
+
 def scrape_website(url):
-    """Scrape text from a website URL."""
+    """Scrape text and title from a website URL."""
     response = requests.get(url)
+    if not response.ok:
+        raise Exception(f"Error fetching {url}: Status code {response.status_code}")
+
     soup = BeautifulSoup(response.text, "html.parser")
-    return soup.get_text()
+
+    # Extract title and convert it
+    title = soup.title.string if soup.title else "No_Title_Found"
+    normalized_title = normalize_text(title)
+
+    # Extract body text
+    body_text = soup.get_text()
+
+    return body_text, normalized_title
 
 def text_to_pdf(text, filename):
     """Convert text content to a PDF file."""
@@ -157,8 +180,8 @@ website_url = expander.text_input("Enter a website URL to scrape and organize in
 # Button to scrape a website, convert to PDF, and upload to OpenAI
 if expander.button("Scrape and Upload"):
     # Scrape, convert, and upload process
-    scraped_text = scrape_website(website_url)
-    pdf_path = text_to_pdf(scraped_text, "content/scraped_content.pdf")
+    scraped_text, title = scrape_website(website_url)
+    pdf_path = text_to_pdf(scraped_text, "content/"+title+".pdf")
     file_id = upload_to_openai(pdf_path)
     local_session['file_id_list'].append(file_id)
     #st.sidebar.write(f"File ID: {file_id}")

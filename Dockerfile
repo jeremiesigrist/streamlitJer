@@ -8,11 +8,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Installe les bibliothèques Python définies dans requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
-CMD ["streamlit", "run", "Home.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port", "8505", "--theme.base", "dark"]
+CMD ["streamlit", "run", "Home.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port", "8505", "--theme.base", "dark", "--layout",  "wide"]
 
 
-# docker build .
-# docker run -d -p 8505:8505 -v /shared/ubuntu/code/streamlitJer:/app myfirstimagestreamlitjer
-# ou utiliser le docker-compose
+# docker build --tag streamlitjer_image .
+    # docker run -d -p 8505:8505 -v /shared/ubuntu/code/streamlitJer:/app streamlitjer_image
+    # ou 
+# docker-compose up -d
