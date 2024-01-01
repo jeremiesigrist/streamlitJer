@@ -9,4 +9,5 @@ services:
       - "8505:8505"
     volumes:
       - /shared/ubuntu/code/streamlitJer:/app
+      - /shared:/dataJer
     restart: unless-stopped    

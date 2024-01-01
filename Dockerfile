@@ -1,4 +1,7 @@
 FROM python:3.11.6
+
+RUN mkdir -p /dataJer
+
 COPY . /app
 WORKDIR /app
 
@@ -11,7 +14,7 @@ RUN apt-get update && \
 # RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install -r requirements.txt
 
-CMD ["streamlit", "run", "Home.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port", "8505", "--theme.base", "dark", "--layout",  "wide"]
+CMD ["streamlit", "run", "Home.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false", "--server.port", "8505", "--theme.base", "dark"]
 
 
 # docker build --tag streamlitjer_image .
