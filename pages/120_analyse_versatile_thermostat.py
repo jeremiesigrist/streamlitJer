@@ -3,8 +3,6 @@ import subprocess
 import plotly.graph_objs as go
 from datetime import datetime
 
-# Commande à exécuter pour obtenir les logs filtrés
-command = "tail -n 50000 /dataJer/homeassistant/config/home-assistant.log | grep --color=auto '.pi_algorithm' | grep --color=auto 'target_tem: 19' | sed 's/DEBUG (MainThread) \[custom_components.versatile_thermostat.pi_algorithm\] PITemperatureRegulator//g'"
 
 # Fonction pour lire les données filtrées et les convertir en listes pour le traçage
 def read_logs():
@@ -21,6 +19,7 @@ def read_logs():
     error_values = []
     accumulated_errors = []
     offsets = []
+    ext_offsets = []
     target_temps = []
     regulated_temps = []
 
@@ -39,6 +38,9 @@ def read_logs():
             offset = float(parts[8])
             offsets.append(offset)
 
+            ext_offset = float(parts[10])
+            ext_offsets.append(ext_offset)
+
             target_temp = float(parts[12])
             target_temps.append(target_temp)
 
@@ -47,10 +49,16 @@ def read_logs():
         except (IndexError, ValueError):
             pass
 
-    return timestamps, error_values, accumulated_errors, offsets, target_temps, regulated_temps
+    return timestamps, error_values, accumulated_errors, offsets, ext_offsets, target_temps, regulated_temps
+
+nb_target_temp = [19,16.1]
+# selected_target_temp = st.sidebar.selectbox("Select the target temp", nb_target_temp)
+
+# Commande à exécuter pour obtenir les logs filtrés
+command = "tail -n 100000 /dataJer/homeassistant/config/home-assistant.log | grep '.pi_algorithm' | grep -E 'target_tem: "+str(nb_target_temp[0])+"|target_tem: "+str(nb_target_temp[1])+"' | sed 's/DEBUG (MainThread) \[custom_components.versatile_thermostat.pi_algorithm\] PITemperatureRegulator//g'"
 
 # Lecture des données filtrées
-timestamps, error_values, accumulated_errors, offsets, target_temps, regulated_temps = read_logs()
+timestamps, error_values, accumulated_errors, offsets, ext_offsets, target_temps, regulated_temps = read_logs()
 
 # Création de la série "Température mesurée" (somme de la température cible et de l'erreur)
 mesured_temps = [target - error for target, error in zip(target_temps, error_values)]
@@ -61,12 +69,14 @@ fig = go.Figure()
 fig.add_trace(go.Scatter(x=timestamps, y=error_values, mode='lines+markers', name='Évolution de l\'erreur'))
 fig.add_trace(go.Scatter(x=timestamps, y=accumulated_errors, mode='lines+markers', name='Erreur accumulée', yaxis='y2'))
 fig.add_trace(go.Scatter(x=timestamps, y=offsets, mode='lines+markers', name='Offset', yaxis='y3'))
+fig.add_trace(go.Scatter(x=timestamps, y=ext_offsets, mode='lines+markers', name='Ext. Offset', yaxis='y3'))
 fig.add_trace(go.Scatter(x=timestamps, y=target_temps, mode='lines+markers', name='Température cible', yaxis='y4'))
 fig.add_trace(go.Scatter(x=timestamps, y=regulated_temps, mode='lines+markers', name='Température régulée', yaxis='y4'))
 fig.add_trace(go.Scatter(x=timestamps, y=mesured_temps, mode='lines+markers', name='Température mesurée', yaxis='y4'))
 
 # Mise à jour de la visibilité de la légende pour l'erreur (index 0)
 fig.update_traces(visible="legendonly", selector=dict(name='Évolution de l\'erreur'))
+fig.update_traces(visible="legendonly", selector=dict(name='Ext. Offset'))
 
 
 fig.update_layout(

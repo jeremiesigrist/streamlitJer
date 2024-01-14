@@ -7,6 +7,7 @@ services:
       - .streamlit/secrets.toml
     ports:
       - "8505:8505"
+      # - "8032:8032"
     volumes:
       - /shared/ubuntu/code/streamlitJer:/app
       - /shared:/dataJer
