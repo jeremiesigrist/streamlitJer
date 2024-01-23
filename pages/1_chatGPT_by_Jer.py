@@ -210,7 +210,7 @@ def anonymize_text_detail(text, C_codes=None):
             # Vérifiez si le jeton (en minuscules) est dans les remplacements personnalisés (ignorant la casse)
             matching_key = next((key for key in WORDS_DICT if key.lower() == token_lower), None)
             if matching_key is not None:
-                anonymized_text.append(WORDS_DICT[matching_key])
+                anonymized_text.append('XXX_'+WORDS_DICT[matching_key])
             else:
                 index = next((i for i, x in enumerate(custom_codes_lower) if x == token_lower), None)
                 if index is not None:
@@ -250,7 +250,7 @@ def deanonymize_text(text, codes_json):
         text = text.replace(code, value)
 
     for value, code in WORDS_DICT.items():
-        text = replace_case_insensitive(text, code, value)
+        text = replace_case_insensitive(text, 'XXX_'+code, value)
 
         # pattern = re.compile(re.escape(code), re.IGNORECASE)
         # text = re.sub(pattern, value, text)
@@ -328,8 +328,6 @@ def get_text():
 
 def clear_text():
     st.session_state["input"] = ""
-
-
 
 
 def get_text_from(history):
@@ -458,6 +456,7 @@ if user_input and user_input != st.session_state['previous_msg']:
 #            lang = 'FR'
 
         #st.write(custom_codes)
+
         user_input, codes_json = anonymize_text(user_input, custom_codes)
         st.session_state.codes = codes_json
         # st.write(user_input, codes_json)
