@@ -13,7 +13,7 @@ def scanner_repertoire(repertoire):
     fichiers = sorted(os.listdir(repertoire))
     return fichiers
 
-cols_per_row = 5
+cols_per_row = 6
 
 # Fonction utilitaire pour charger l'image s'il elle existe
 def charger_image(fichier):
@@ -74,6 +74,21 @@ with cols[1]:
 with cols[2]:
     st.image('./images/calibre.jpg', width=130, caption="calibre web")
     st.markdown(f"[Ouvrir la page...](https://calibre.sigrist31.online)", unsafe_allow_html=True)    
+
+with cols[3]:
+    st.image('./images/ollama.png', width=130, caption="ollama")
+    st.markdown(f"[Ouvrir la page...](http://192.168.0.198:3000/)", unsafe_allow_html=True)        
+
+with cols[4]:
+    st.image('./images/visual-studio-code-icon.png', width=130, caption="vscode")
+    st.markdown(f"[Ouvrir la page...](http://192.168.0.198:8443/?folder=/shared)", unsafe_allow_html=True)        
+
+with cols[5]:
+    st.image('./images/jupyterlab.jpg', width=130, caption="jupyterlab")
+    st.markdown(f"[Ouvrir la page...](http://192.168.0.198:8033/lab)", unsafe_allow_html=True)        
+
+# http://192.168.0.198:8443/?folder=/shared
+
 
 st.write("")
 

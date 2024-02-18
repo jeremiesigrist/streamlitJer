@@ -19,7 +19,7 @@ from pytz import timezone
 
 # Fonction pour récupérer les données depuis l'API
 def get_data():
-    url = "http://192.168.0.158/index.php/meter/old_meter_power_graph"
+    url = "http://192.168.0.175/index.php/meter/old_meter_power_graph"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()

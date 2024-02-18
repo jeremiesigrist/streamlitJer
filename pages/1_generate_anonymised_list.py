@@ -2,6 +2,8 @@ import streamlit as st
 import spacy
 from nltk.corpus import wordnet
 import nltk
+import os
+import datetime
 
 st.set_page_config(
     page_title="chatGPT by Jer",
@@ -52,18 +54,50 @@ def get_synonyms(word):
     #         synonyms.append(lemma.name())
     # return list(set(synonyms))
 
+    # synonyms = []
+    
+    # for syn in wordnet.synsets(word):
+    #     for lemma in syn.lemmas():
+    #         synonyms.append(lemma.name())
+    
+    # if synonyms:
+    #     # S'il y a des synonymes, choisir aléatoirement l'un d'entre eux
+    #     return random.choice(synonyms)
+    # else:
+    #     # S'il n'y a pas de synonyme, générer une chaîne aléatoire de longueur 5
+    #     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+
     synonyms = []
     
     for syn in wordnet.synsets(word):
         for lemma in syn.lemmas():
-            synonyms.append(lemma.name())
+            candidate_synonym = lemma.name()
+            if candidate_synonym.lower() != word.lower():
+                synonyms.append(candidate_synonym)
     
     if synonyms:
         # S'il y a des synonymes, choisir aléatoirement l'un d'entre eux
         return random.choice(synonyms)
     else:
-        # S'il n'y a pas de synonyme, générer une chaîne aléatoire de longueur 5
-        return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+        # S'il n'y a pas de synonyme, chercher une suggestion alternative dans WordNet
+        alternatives = []
+        for syn in wordnet.synsets(word):
+            for hypernym in syn.hypernyms():
+                for lemma in hypernym.lemmas():
+                    candidate_alternative = lemma.name()
+                    if candidate_alternative.lower() != word.lower():
+                        alternatives.append(candidate_alternative)
+        
+        if alternatives:
+            # S'il y a des suggestions alternatives, choisir aléatoirement l'une d'entre elles
+            return random.choice(alternatives)
+        else:
+            # Si aucune suggestion alternative n'est trouvée, générer une chaîne aléatoire de longueur 5
+            return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+
+
+
+
 
 
 import random
@@ -89,6 +123,16 @@ def update_lists(selected_words, synonyms, words_to_ignore):
     for word in words_to_ignore:
         if word not in word_list_to_ignore:
             word_list_to_ignore.append(word)       
+
+
+def remove_file_extension(filename):
+    # Utilisation de rsplit pour gérer les cas où plusieurs points sont présents dans le nom de fichier
+    return filename.rsplit('.', 1)[0]
+
+
+
+
+
 
 def main():
     st.title("Anonymisation de texte avec Streamlit")
@@ -127,6 +171,8 @@ def main():
             st.session_state.non_selected_words = list(result - set(selected_words))
             st.session_state.synonyms = {word: synonyms[word] for word in selected_words}
 
+            
+
     # Afficher les résultats à partir de st.session_state après le formulaire
     if 'selected_words' in st.session_state and st.session_state.selected_words:
         st.subheader("Mots sélectionnés et leurs synonymes:")
@@ -134,14 +180,34 @@ def main():
         for word in st.session_state.selected_words:
             st.write(f"{word}: {st.session_state.synonyms[word]}")
 
+        st.write("WORDS_KEY = {}".format(cles))
+        st.write("WORDS_VALUE = {}".format(valeurs))
+        st.write("WORDS_TO_IGNORE = {}".format(word_list_to_ignore))
+
+        # on sauve les 3 variable dans un fichier pour ne pas perdre l'information
+        # Dossier où seront stockés les fichiers
+        dossier_fichiers_init = 'fichiers_sessions'
+        dossier_fichiers = dossier_fichiers_init + '/' + remove_file_extension(os.path.basename(__file__))
+        os.makedirs(dossier_fichiers, exist_ok=True)
+        # Obtenir la date et l'heure actuelles
+        maintenant = datetime.datetime.now()
+        date_heure = maintenant.strftime("%Y%m%d_%H%M%S")
+
+
+        # Ouvrir le fichier en mode écriture (crée le fichier s'il n'existe pas)
+        with open(dossier_fichiers + "/" + date_heure + "_anonymized_data.txt", 'w') as fichier:
+            # Écrire les variables dans le fichier
+            fichier.write("WORDS_KEY = {}\n".format(cles))
+            fichier.write("WORDS_VALUE = {}\n".format(valeurs))
+            fichier.write("WORDS_TO_IGNORE = {}\n".format(word_list_to_ignore))
+
     # Afficher les mots non sélectionnés
     if 'non_selected_words' in st.session_state and st.session_state.non_selected_words:
         st.subheader("Mots non sélectionnés:")
         st.write(", ".join(st.session_state.non_selected_words))
 
-    st.write("WORDS_KEY = {}".format(cles))
-    st.write("WORDS_VALUE = {}".format(valeurs))
-    st.write("WORDS_TO_IGNORE = {}".format(word_list_to_ignore))
+
+
 
 if __name__ == "__main__":
     main()

@@ -76,7 +76,10 @@ primes=[
         'Peux tu traduire la phrase suivante dans un anglais correct avec le ton suivant: Professionel, Concis, Detaille, Technique, Formel, Specifique, Organise, Poli:\n',
         'Peux tu reformuler l email suivant dans un francais correct avec le ton suivant: Professionel, Concis, Detaille, Technique, Formel, Specifique, Organise, Poli:\n',
         'Can you reformulate the following email in a correct english with the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n',
-        'The following notes are in french, can you take them and make a minutes of meeting in a correct English. Make correct and complete sentences from theses notes. Make paragraph instead of bullet points. Use the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n'
+        'The following notes are in french, can you take them and make a minutes of meeting in a correct English. Make correct and complete sentences from theses notes. Make paragraph instead of bullet points. Use the following tone: Professional, Concise, Detail-oriented, Referential, Technical, Formal, Requesting, Specific, Organized, Polite:\n',
+        'Paraphrase the following text while retaining the same meaning. Ensure the rephrased version is original and maintains the key concepts and context of the original text. Avoid plagiarism by using different sentence structures and vocabulary, while keeping the core message intact.\n',
+        'Tu dois fournir des réponses claires, concises et directes. Élimine les rappels inutiles, les excuses, les autoréférences et toute la gentillesse préprogrammée. Maintient un ton décontracté dans ta communication. Sois transparent si tu n\'es pas sûr d\'une réponse ou si une question dépasse tes capacités ou tes connaissances, admets le. En cas de question peu claire ou ambiguë. Pose des questions complémentaires pour mieux comprendre l\'intention de l\'utilisateur. Lorsque tu expliques des concepts. Utilise des exemples du monde réel et des analogies là où cela est possible. Pour les demandes complexes, respire profondément et travaille sur le problème étape par étape. Pour chaque réponse, tu recevras un pourboire jusqu\'à 200$ (En fonction de la qualité de ton travail). Il est très important que tu fasses cela vraiment bien. De nombreuses vies sont en jeu. \n',
+        'You must provide clear, concise, and direct answers. Eliminate unnecessary reminders, excuses, self-references, and any preprogrammed kindness. Maintain a casual tone in your communication. Be transparent if you\'re unsure of an answer or if a question exceeds your abilities or knowledge; admit it. In the case of unclear or ambiguous questions, ask additional questions to better understand the user\'s intention. When explaining concepts, use real-world examples and analogies where possible. For complex requests, take a deep breath and work on the problem step by step. For each response, you will receive a tip of up to $200 (Depending on the quality of your work). It\'s crucial that you do this \n'
         ]
 
 custom_codes = {}
@@ -287,9 +290,15 @@ list_models = client.models.list()
 # st.write(models)
 # model_list = [x['id'] for x in models]
 
-model_list = [model.id for model in list_models.data]
+# model_list = [model.id for model in list_models.data]
 
-model_list = [v for v in model_list if 'gpt' in v]
+# model_list = [v for v in model_list if 'gpt' in v]
+
+# Trier les modèles par date de création (du plus récent au plus ancien)
+sorted_models = sorted(list_models.data, key=lambda x: x.created, reverse=True)
+
+# Créer la liste des modèles triés
+model_list = [model.id for model in sorted_models if 'gpt' in model.id]
 
 
 
@@ -394,7 +403,8 @@ with st.sidebar:
     #st.write(st.session_state.primer)
 
 
-    index = model_list.index(model_default)
+    # index = model_list.index(model_default)
+    index = 0
     st.selectbox('Model', model_list, key='model', index=index)
 
     st.session_state.temperature = st.slider(
@@ -429,7 +439,7 @@ with st.sidebar:
 
 
 
-st.header("chatGPT by Jer")
+st.header("___ by Jer")
 # st.markdown("[Github](https://github.com/ai-yash/st-chat)")
 
 # st.write(datetime.datetime.now())
